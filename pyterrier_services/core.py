@@ -25,6 +25,8 @@ def paginated_search(fn, num_results):
             page, offset = fn(query, offset=offset, limit=num_results-count, return_next=True)
             pages.append(page)
             count += len(page)
+            if len(page) == 0:
+                break
         return pd.concat(pages, ignore_index=True)
     return wrapped
 
