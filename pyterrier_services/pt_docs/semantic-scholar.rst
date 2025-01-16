@@ -12,8 +12,8 @@ Example:
 .. code-block:: python
 	:caption: Retrieve from the Semantic Scholar API
 
-	>>> from pyterrier_services import SemanticScholar
-	>>> s2 = SemanticScholar()
+	>>> from pyterrier_services import SemanticScholarApi
+	>>> s2 = SemanticScholarApi()
 	>>> retr = s2.retriever(num_results=5)
 	>>> retr.search('pyterrier')
 	# qid      query                                     docno  score  rank                                              title                                           abstract
