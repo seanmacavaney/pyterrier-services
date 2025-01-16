@@ -1,20 +1,25 @@
 # pyterrier-services
 
-PyTerrier components for online retrieval services.
+PyTerrier components for online retrieval services, including:
 
-## SemanticScholar
+ - DBLP
+ - Pinecone
+ - Semantic Scholar
+
+More information can be found in the [documentation](https://pyterrier.readthedocs.io/en/latest/ext/pyterrier-services).
+
+## Example: Retrieval from Semantic Scholar
 
 [Semantic Scholar](https://www.semanticscholar.org/me/research) is a scientific literature
 search engine provided by the [Allen Institute for AI](https://allenai.org/).
 
-`SemanticScholar()` provides access to the [search API](https://www.semanticscholar.org/product/api).
+`SemanticScholarApi()` provides access to the [search API](https://www.semanticscholar.org/product/api).
 
 Example:
 
 ```python
->>> import pyterrier as pt ; pt.init()
->>> from pyterrier_services import SemanticScholar
->>> service = SemanticScholar()
+>>> from pyterrier_services import SemanticScholarApi
+>>> service = SemanticScholarApi()
 >>> retriever = service.retriever()
 >>> retriever.search('PyTerrier')
 # qid      query                                     docno  score  rank                                              title                                           abstract
@@ -31,8 +36,3 @@ Example:
 #   1  pyterrier  e57c05d3eb9c2d32332dc539d32e78f2b1fb05a6    -10    10  University of Glasgow Terrier Team and UFMG at...  For TREC 2020, we explore different re-ranking...
 #   1  pyterrier  81ec8a40deb82470438d978b013a0f6094ec8843    -11    11  IR From Bag-of-words to BERT and Beyond throug...  The task of adhoc search is undergoing a renai...
 ```
-
-## Pinecone
-
-[Pinecone](https://docs.pinecone.io/models/overview) provides a Hosted Inference API to various embedding
-and reranking models. ``pyterrier-services`` provides access to dense, learned sparse, and re-ranking APIs through `pyterrier_services.PineconeApi`.
