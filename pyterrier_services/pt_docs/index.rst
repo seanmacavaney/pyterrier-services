@@ -13,5 +13,6 @@ transformers for various API services.
 .. toctree::
    :maxdepth: 1
 
+   dblp
    pinecone
    semantic-scholar
