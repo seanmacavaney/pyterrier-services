@@ -109,6 +109,8 @@ class DblpApi:
                     if isinstance(authors, dict):
                         authors = [authors]
                     row.append([a['text'] for a in authors])
+                elif c == 'title':
+                    row.append(hit['info'][c].rstrip('.')) # dblp search results add a trailing . to titles for some reason?
                 else:
                     row.append(hit['info'][c])
             result_df.append(row)
