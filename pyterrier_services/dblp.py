@@ -105,7 +105,7 @@ class DblpApi:
             ]
             for c in data_columns:
                 if c == 'authors':
-                    authors = hit['info'][c]['author']
+                    authors = hit['info'][c].get('author', [])
                     if isinstance(authors, dict):
                         authors = [authors]
                     row.append([a['text'] for a in authors])
