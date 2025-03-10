@@ -89,17 +89,17 @@ class DblpApi:
         http_res.raise_for_status()
         http_res = http_res.json()['result']
 
-        data_columns, docno_column = {
-            DblpEntityType.publication: (['title', 'authors', 'year', 'type'], 'key'),
-            DblpEntityType.author: (['author'], '@id'),
-            DblpEntityType.venue: (['venue', 'acronym', 'type'], '@id'),
+        data_columns, docno_column_fn = {
+            DblpEntityType.publication: (['title', 'authors', 'year', 'type'], lambda hit: hit['info']['key']),
+            DblpEntityType.author: (['author'], lambda hit: hit['info']['url'].replace('https://dblp.org/pid/', '')),
+            DblpEntityType.venue: (['venue', 'acronym', 'type'], lambda hit: hit['info']['url'].replace('https://dblp.org/db/', '')[:-1]),
         }[entity_type]
 
         result_df = []
         first = int(http_res['hits']['@first'])
         for rank, hit in zip(range(limit), http_res['hits'].get('hit', [])):
             row = [
-                hit['info'][docno_column] if docno_column != '@id' else hit['@id'],
+                docno_column_fn(hit),
                 first + rank,
                 -1.0 * (first + rank),
             ]
@@ -112,7 +112,7 @@ class DblpApi:
                 elif c == 'title':
                     row.append(hit['info'][c].rstrip('.')) # dblp search results add a trailing . to titles for some reason?
                 else:
-                    row.append(hit['info'][c])
+                    row.append(hit['info'].get(c))
             result_df.append(row)
         result_df = pd.DataFrame(result_df, columns=['docno', 'rank', 'score', *data_columns])
 
