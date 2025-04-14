@@ -1,19 +1,21 @@
 
 import pyterrier as pt
 import pandas as pd
-
+import os
 class GoogleApi():
 
-    def __init__(self, key : str):
+    def __init__(self, key : str = os.getenv("PYTERRIER_SERVICES_GOOGLE_KEY")):
         """
         Construct a new Google API object
 
         Arguments: 
             key(str) - the Google API key
         """
+        if key is None:
+            raise ValueError("A Google API key must be specified")
         self.key = key
 
-    def retriever(self, cx) -> pt.Transformer:
+    def retriever(self, cx = os.getenv("PYTERRIER_SERVICES_GOOGLE_CX")) -> pt.Transformer:
         """
         Returns a Google Search transformer. 
         Follow Google's guide for a `Custom Search JSON API <https://developers.google.com/custom-search/v1/overview>`_ to get
@@ -43,7 +45,8 @@ class GoogleApi():
             htmlFormattedUrl    https://www.britannica.com/science/<b>chemical...
             pagemap             {'cse_thumbnail': [{'src': 'https://encrypted-...
         """
-    
+        if cx is None:
+            raise ValueError("A Google CX must be specified")
         try:
             from googleapiclient.discovery import build
         except ModuleNotFoundError as mnfe:
