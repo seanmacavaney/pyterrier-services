@@ -14,5 +14,6 @@ transformers for various API services.
    :maxdepth: 1
 
    dblp
+   google
    pinecone
    semantic-scholar
