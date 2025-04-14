@@ -3,15 +3,16 @@ Google API
 
 
 ``pyterrier-services`` provides access to the Google Search API through
-:class:`~pyterrier_services.GoogleSearchRetriever`.
+:class:`~pyterrier_services.GoogleApi`.
 
 Example:
 
 .. code-block:: python
 	:caption: Retrieve from the Google API
 
-	>>> from pyterrier_services import GoogleSearchRetriever
-	>>> retr = GoogleSearchRetriever(cx=..., key=...)
+	>>> from pyterrier_services import GoogleApi
+	>>> api = GoogleApi(key=...)
+	>>> retr = api.retriever(cx=...)
 	>>> retr.search('pyterrier')
 	# qid      query                                     docno  score  rank                                              title                                           abstract
 	#   1  pyterrier  7fa92ed08eee68a945884b8744e7db9887aed9d3      0     0  PyTerrier: Declarative Experimentation in Pyth...  PyTerrier is a Python-based retrieval framewor...
@@ -21,4 +22,4 @@ Example:
 	#   1  pyterrier  90b8a1adae2761e48c87fdeb68a595dc11161970     -4     4  QPPTK@TIREx: Simplified Query Performance Pred...  We describe our software submission to the ECI...
 
 
-.. autofunction:: pyterrier_services.GoogleSearchRetriever
+.. autoclass:: pyterrier_services.GoogleApi
