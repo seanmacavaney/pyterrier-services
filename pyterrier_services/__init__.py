@@ -1,4 +1,4 @@
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 from .core import http_error_retry, paginated_search, multi_query
 from .semantic_scholar import SemanticScholarApi, SemanticScholarRetriever
