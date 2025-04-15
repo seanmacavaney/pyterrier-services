@@ -5,6 +5,7 @@ PyTerrier components for online retrieval services, including:
  - DBLP
  - Pinecone
  - Semantic Scholar
+ - Google Web Search
 
 More information can be found in the [documentation](https://pyterrier.readthedocs.io/en/latest/ext/pyterrier-services).
 
