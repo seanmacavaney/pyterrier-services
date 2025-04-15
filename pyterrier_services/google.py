@@ -6,7 +6,6 @@ from pyterrier_services import paginated_search, multi_query
 
 _HELP_URL = 'https://developers.google.com/custom-search/v1/overview'
 
-
 class GoogleApi:
     """Represents a refernece to the Google API."""
 
@@ -48,6 +47,7 @@ class GoogleApi:
             url                 https://www.britannica.com/science/chemical-re...
             snippet             Mar 24, 2025 ... A chemical reaction is a proc...
         """.format(_HELP_URL=_HELP_URL)
+        return GoogleSearchRetriever(self, cx, num_results=num_results, verbose=verbose)
 
 
 class GoogleSearchRetriever(pt.Transformer):
