@@ -3,3 +3,4 @@ pytest-subtests
 pytest-cov
 pytest-json-report
 ruff
+google-api-python-client
