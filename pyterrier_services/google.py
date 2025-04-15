@@ -6,6 +6,7 @@ from pyterrier_services import paginated_search, multi_query
 
 _HELP_URL = 'https://developers.google.com/custom-search/v1/overview'
 
+
 class GoogleApi:
     """Represents a refernece to the Google API."""
 
@@ -47,22 +48,6 @@ class GoogleApi:
             url                 https://www.britannica.com/science/chemical-re...
             snippet             Mar 24, 2025 ... A chemical reaction is a proc...
         """.format(_HELP_URL=_HELP_URL)
-        return GoogleSearchRetriever(self, cx, num_results=num_results, verbose=verbose)
-        if cx is None:
-            raise ValueError("A Google CX must be specified")
-        try:
-            from googleapiclient.discovery import build
-        except ModuleNotFoundError as mnfe:
-            raise Exception("You need to pip install google-api-python-client") from mnfe
-
-        service = build(
-            "customsearch", "v1", developerKey=self.key
-        )
-        def _search_google(one_query : pt.model.IterDict) -> pt.model.IterDict:
-            res = service.cse().list(q=next(one_query)["query"], cx=cx).execute()
-            return res["items"]
-
-        return pt.apply.by_query(_search_google, iter=True)
 
 
 class GoogleSearchRetriever(pt.Transformer):
