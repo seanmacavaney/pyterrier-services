@@ -1,16 +1,24 @@
+import sys
+from time import sleep
 import requests
 import pyterrier as pt
 import pandas as pd
 
 
-def http_error_retry(fn, retries=3):
+def http_error_retry(fn, retries=5, cooldown=2., exp_cooldown=True):
     def wrapped(*args, **kwargs):
+        cd = cooldown
         ex = None
         for i in range(retries):
             try:
                 return fn(*args, **kwargs)
             except requests.exceptions.HTTPError as e:
                 ex = e
+                if e.response.status_code == 429 and cd is not None and i + 1 != retries:
+                    sys.stderr.write(f'Too many requests, cooling down [{cd}sec]...\n')
+                    sleep(cd)
+                    if exp_cooldown:
+                        cd = cd * 2
         if ex is not None:
             raise ex
     return wrapped
