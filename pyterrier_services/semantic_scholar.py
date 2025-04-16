@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional, Union, Tuple
 from functools import partial
 import pandas as pd
@@ -8,6 +9,13 @@ from . import http_error_retry, paginated_search, multi_query
 class SemanticScholarApi:
     """Represents a reference to the Semantic Scholar search API."""
     API_BASE_URL = 'https://api.semanticscholar.org/graph/v1'
+
+    def __init__(self, api_key: Optional[str] = None):
+        """
+        Args:
+            api_key: The API key for Semantic Scholar. If not provided, it will fall back on using the value from the ``S2_API_KEY`` env variable, and if that is not available, the API will be used without authentication.
+        """
+        self.api_key = api_key or os.environ.get('S2_API_KEY')
 
     def retriever(self,
         *,
@@ -49,7 +57,8 @@ class SemanticScholarApi:
             'fields': ','.join(fields),
             'limit': max(min(limit, 100), 1),
         }
-        http_res = requests.get(SemanticScholarApi.API_BASE_URL + '/paper/search', params=params)
+        headers = {'x-api-key': self.api_key} if self.api_key else {}
+        http_res = requests.get(SemanticScholarApi.API_BASE_URL + '/paper/search', params=params, headers=headers)
         http_res.raise_for_status()
         http_res = http_res.json()
 
