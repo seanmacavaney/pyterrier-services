@@ -91,7 +91,7 @@ class DblpApi:
 
         data_columns, docno_column_fn = {
             DblpEntityType.publication: (['title', 'authors', 'year', 'type'], lambda hit: hit['info']['key']),
-            DblpEntityType.author: (['author'], lambda hit: hit['info']['url'].replace('https://dblp.org/pid/', '')),
+            DblpEntityType.author: (['author', 'affiliations'], lambda hit: hit['info']['url'].replace('https://dblp.org/pid/', '')),
             DblpEntityType.venue: (['venue', 'acronym', 'type'], lambda hit: hit['info']['url'].replace('https://dblp.org/db/', '')[:-1]),
         }[entity_type]
 
@@ -111,6 +111,21 @@ class DblpApi:
                     row.append([a['text'] for a in authors])
                 elif c == 'title':
                     row.append(hit['info'][c].rstrip('.')) # dblp search results add a trailing . to titles for some reason?
+                elif c == 'affiliations':
+                    if 'notes' in hit['info'] and 'note' in hit['info']['notes']:
+                        if isinstance(hit['info']['notes']['note'], dict):
+                            if hit['info']['notes']['note']['@type'] == 'affiliation':
+                                row.append([hit['info']['notes']['note']['text']])
+                            else:
+                                row.append([])
+                        else:
+                            row.append([
+                                note['text']
+                                for note in hit['info']['notes']['note']
+                                if note['@type'] == 'affiliation'
+                            ])
+                    else:
+                        row.append([])
                 else:
                     row.append(hit['info'].get(c))
             result_df.append(row)
