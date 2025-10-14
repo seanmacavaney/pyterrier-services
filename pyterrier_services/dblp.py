@@ -1,8 +1,11 @@
 from typing import Optional, Union, Tuple
+import io
 from functools import partial
 from enum import Enum
 import pandas as pd
 import requests
+import xml.etree.ElementTree as ET
+import html.entities
 import pyterrier as pt
 import pyterrier_alpha as pta
 from . import http_error_retry, paginated_search, multi_query
@@ -155,6 +158,66 @@ class DblpApi:
         http_res.raise_for_status()
         return http_res.text
 
+    def load_author(self,
+        dblp_id: str,
+    ) -> dict:
+        http_res = requests.get(f'{DblpApi.API_BASE_URL}/pid/{dblp_id}.xml')
+        http_res.raise_for_status()
+
+        parser = ET.XMLParser()
+        # handle HTML entities
+        parser.entity.update(html.entities.entitydefs)
+        parser.entity['umml'] = parser.entity['uuml']
+
+        # parse the entire document
+        root = ET.parse(io.BytesIO(http_res.content), parser).getroot()
+
+        author = {
+            'dblp_id': dblp_id,
+            'name': None,
+            'affiliations': [],
+        }
+
+        for person in root.findall('person'):
+            author_elem = person.find('author')
+            if author_elem is not None:
+                author['name'] = author_elem.text
+                author['dblp_id'] = author_elem.attrib.get('pid')
+            for note_elem in person.findall('note'):
+                if note_elem.attrib.get('type') == 'affiliation' and note_elem.text:
+                    author['affiliations'].append(note_elem.text)
+        return author
+
+    def load_disambiguation(self,
+        dblp_id: str,
+    ) -> dict:
+        http_res = requests.get(f'{DblpApi.API_BASE_URL}/pid/{dblp_id}.xml')
+        http_res.raise_for_status()
+
+        parser = ET.XMLParser()
+        parser.entity.update(html.entities.entitydefs)
+        parser.entity['umml'] = parser.entity['uuml']
+
+        root = ET.parse(io.BytesIO(http_res.content), parser).getroot()
+
+        result = []
+
+        homonyms_elem = root.find('homonyms')
+        if homonyms_elem is not None:
+            for homonym_elem in homonyms_elem.findall('h'):
+                person = homonym_elem.find('person')
+                author_elem = person.find('author')
+                author = {
+                    'docno': author_elem.attrib.get('pid'),
+                    'author': author_elem.text,
+                    'affiliations': [],
+                }
+                for note_elem in person.findall('note'):
+                    if note_elem.attrib.get('type') == 'affiliation' and note_elem.text:
+                        author['affiliations'].append(note_elem.text)
+                result.append(author)
+        return pd.DataFrame(result, columns=['docno', 'author', 'affiliations'])
+
 
 class DblpRetriever(pt.Transformer):
     """A :class:`~pyterrier.Transformer` retriever that queries the DBLP search API."""
@@ -182,7 +245,8 @@ class DblpRetriever(pt.Transformer):
         return multi_query(
             paginated_search(
                 http_error_retry(
-                    partial(self.api.search, entity_type=self.entity_type)
+                    partial(self.api.search, entity_type=self.entity_type),
+                    cooldown=15.,
                 ),
                 num_results=self.num_results,
             ),

@@ -35,6 +35,11 @@ def paginated_search(fn, num_results):
             count += len(page)
             if len(page) == 0:
                 break
+        if len(pages) == 1:
+            return pages[0]
+        pages = [p for p in pages if len(p) > 0]
+        if len(pages) == 1:
+            return pages[0]
         return pd.concat(pages, ignore_index=True)
     return wrapped
 
